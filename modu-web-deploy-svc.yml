@@ -1,0 +1,42 @@
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: modu-web
+spec:
+  selector:
+    matchLabels:
+      app: modu-web
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: modu-web
+    spec:
+      containers:
+      - name: modu-web
+        image: 299277078007.dkr.ecr.ap-northeast-2.amazonaws.com/powerumc/modu-web
+        ports:
+        - containerPort: 80
+      imagePullSecrets:
+        - name: aws-ecr
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: modu-web
+  #namespace: default
+  #annotations:
+    #service.beta.kubernetes.io/aws-load-balancer-connection-draining-enabled: "true"
+    #service.beta.kubernetes.io/aws-load-balancer-connection-draining-timeout: "60"
+    #service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  selector:
+    app: modu-web
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 80
+    nodePort: 30331
